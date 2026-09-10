@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Choose your account · AgriDirect{% endblock %}
+{% block content %}
+<section class="login-chooser">
+  <div class="chooser-intro">
+    <div class="eyebrow">🌱 FARM TO HOME</div>
+    <h1>Welcome to <span>AgriDirect</span></h1>
+    <p>Choose how you want to use AgriDirect. Your selection takes you directly to the right workspace.</p>
+  </div>
+
+  <div class="role-cards" aria-label="Choose account type">
+    <article class="role-card role-card-farmer">
+      <div class="role-card-icon">🌾</div>
+      <div class="role-card-tag">FOR GROWERS</div>
+      <h2>I'm a Farmer</h2>
+      <p>List your fresh produce, manage orders and use demand insights to plan smarter.</p>
+      <a class="button full" href="{{ url_for('login', role='farmer') }}">Continue as Farmer →</a>
+      <div class="role-card-footer">New farmer? <a href="{{ url_for('signup', role='farmer') }}">Create an account</a></div>
+    </article>
+
+    <article class="role-card role-card-consumer">
+      <div class="role-card-icon">🛒</div>
+      <div class="role-card-tag">FOR SHOPPERS</div>
+      <h2>I'm a Consumer</h2>
+      <p>Discover fresh produce directly from farmers, add items to your cart and order easily.</p>
+      <a class="button full" href="{{ url_for('login', role='consumer') }}">Continue as Consumer →</a>
+      <div class="role-card-footer">New consumer? <a href="{{ url_for('signup', role='consumer') }}">Create an account</a></div>
+    </article>
+  </div>
+
+  <div class="chooser-help"><span>🔒</span><div><strong>One simple rule</strong><small>Use the same account type you selected when registering. Farmer and consumer workspaces stay separate.</small></div></div>
+</section>
+<section class="feature-row chooser-features">
+  <div><span>🚚</span><b>Direct marketplace</b><small>From farmer to doorstep</small></div>
+  <div><span>🌿</span><b>Fresh produce</b><small>Harvest details stay visible</small></div>
+  <div><span>📈</span><b>Smart insights</b><small>Make informed decisions</small></div>
+  <div><span>🔒</span><b>Demo checkout</b><small>Safe prototype flow</small></div>
+</section>
+{% endblock %}

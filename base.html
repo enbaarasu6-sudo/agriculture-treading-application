@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}AgriDirect{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-language="{{ language }}">
+<header class="site-header">
+  <div class="topbar shell">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="AgriDirect home">
+      <span class="brand-mark">⌁</span><span>Agri<span>Direct</span></span>
+    </a>
+    {% if current_user and current_user['role']=='consumer' %}
+    <div class="deliver-to"><span class="mini-icon">⌖</span><div><small>Delivering to</small><strong>{{ current_user['location'] }}</strong></div></div>
+    <form class="top-search" method="get" action="{{ url_for('consumer_home') }}">
+      <input name="q" value="{{ request.args.get('q','') }}" placeholder="Search fresh produce, farmers and more">
+      <button aria-label="Search">⌕</button>
+    </form>
+    {% elif current_user %}
+    <div class="farmer-welcome"><small>Farmer workspace</small><strong>{{ current_user['name'] }}</strong></div>
+    {% endif %}
+    <div class="header-actions">
+      {% if current_user %}
+      <div class="account"><small>Hello, {{ current_user['name'].split()[0] }}</small><strong>{{ current_user['role'].title() }} Account</strong></div>
+      {% if current_user['role']=='consumer' %}
+      <a class="header-link" href="{{ url_for('consumer_orders') }}"><small>Returns</small><strong>& Orders</strong></a>
+      <a class="cart-link" href="{{ url_for('cart') }}"><span>🛒</span><b>{{ cart_count }}</b><small>Cart</small></a>
+      {% else %}
+      <a class="header-link" href="{{ url_for('farmer_orders') }}"><small>Manage</small><strong>Orders</strong></a>
+      <a class="cart-link" href="{{ url_for('farmer_notifications') }}"><span>🔔</span>{% if unread_notifications %}<b>{{ unread_notifications }}</b>{% endif %}<small>Alerts</small></a>
+      {% endif %}
+      <a class="logout-link" href="{{ url_for('logout') }}">Logout</a>
+      {% else %}
+      <a class="header-link" href="{{ url_for('login', role='consumer') }}"><small>Hello,</small><strong>Sign in</strong></a>
+      {% endif %}
+      <form class="language-switcher" method="post" action="{{ url_for('set_language', lang=language) }}" onsubmit="return false">
+        <select id="langSelect" aria-label="Language" onchange="window.location.href='{{ url_for('set_language', lang='__LANG__') }}'.replace('__LANG__', this.value)">
+          <option value="en" {% if language=='en' %}selected{% endif %}>EN</option>
+          <option value="ta" {% if language=='ta' %}selected{% endif %}>தமிழ்</option>
+          <option value="hi" {% if language=='hi' %}selected{% endif %}>हिंदी</option>
+        </select>
+      </form>
+    </div>
+  </div>
+  {% if current_user %}
+  <nav class="main-nav">
+    <div class="shell nav-inner">
+      {% if current_user['role']=='consumer' %}
+      <a href="{{ url_for('consumer_home') }}" class="nav-active">⌂ Home</a>
+      <a href="{{ url_for('consumer_home') }}?category=Vegetables">🥬 Vegetables</a>
+      <a href="{{ url_for('consumer_home') }}?category=Fruits">🍎 Fruits</a>
+      <a href="{{ url_for('consumer_home') }}?category=Grains">🌾 Grains</a>
+      <a href="{{ url_for('consumer_home') }}?category=Spices">🌶️ Spices</a>
+      <a href="{{ url_for('wishlist') }}">♡ Wishlist{% if wishlist_count %} <em>{{ wishlist_count }}</em>{% endif %}</a>
+      <a href="{{ url_for('consumer_notifications') }}">Notifications{% if unread_notifications %} <em>{{ unread_notifications }}</em>{% endif %}</a>
+      {% else %}
+      <a href="{{ url_for('farmer_home') }}" class="nav-active">⌂ Dashboard</a>
+      <a href="{{ url_for('add_produce') }}">＋ Add Produce</a>
+      <a href="{{ url_for('supply_demand') }}">⚖ Supply & Demand</a>
+      <a href="{{ url_for('future_harvest') }}">🌱 Future Harvest</a>
+      <a href="{{ url_for('farmer_orders') }}">📦 Orders</a>
+      <a href="{{ url_for('farmer_notifications') }}">🔔 Messages{% if unread_notifications %} <em>{{ unread_notifications }}</em>{% endif %}</a>
+      {% endif %}
+    </div>
+  </nav>
+  {% endif %}
+</header>
+
+<main class="page-shell">
+  {% for m in get_flashed_messages() %}<div class="flash">{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+
+{% if current_user %}
+<div id="voiceAssistant" class="voice-assistant">
+  <div class="voice-panel">
+    <div class="voice-head"><div><small>AgriDirect</small><b>🎙️ Voice Assistant</b></div><button class="voice-close" type="button">×</button></div>
+    <div class="voice-log"><p class="assistant">Ask me to open the shop, orders, basket, alerts or farmer tools.</p></div>
+    <div class="voice-status">Tap the mic and speak</div>
+    <div class="voice-controls"><input class="voice-input" placeholder="Type a command..."><button class="voice-mic" type="button" title="Speak">🎙️</button><button class="voice-send" type="button">➤</button></div>
+  </div>
+  <button class="voice-main" type="button" title="Voice Assistant">🎙️</button>
+</div>
+{% endif %}
+<script src="{{ url_for('static', filename='i18n.js') }}"></script>
+<script src="{{ url_for('static', filename='voice.js') }}"></script>
+</body>
+</html>

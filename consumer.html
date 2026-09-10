@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Fresh Produce · AgriDirect{% endblock %}
+{% block content %}
+<section class="shop-hero">
+  <div class="hero-copy">
+    <div class="eyebrow">FRESH • LOCAL • DIRECT</div>
+    <h1>Good food starts<br><span>with good farms.</span></h1>
+    <p>Discover fresh produce listed directly by farmers around you.</p>
+    <a href="#products" class="button">Shop fresh produce</a>
+  </div>
+  <div class="hero-art"><div class="hero-leaf leaf-one">🍃</div><div class="hero-leaf leaf-two">🌿</div><div class="hero-basket">🧺<span>🥬</span><span>🍅</span><span>🥕</span></div><div class="hero-sun"></div></div>
+</section>
+
+<section class="benefit-row">
+  <div><span>🚚</span><div><b>Direct delivery</b><small>From farmer to you</small></div></div>
+  <div><span>🌱</span><div><b>Fresh produce</b><small>See harvest information</small></div></div>
+  <div><span>🛡️</span><div><b>Transparent buying</b><small>Clear prices and quantities</small></div></div>
+  <div><span>🤝</span><div><b>Support farmers</b><small>Buy without unnecessary layers</small></div></div>
+</section>
+
+<section class="section-block" id="products">
+  <div class="section-heading"><div><div class="eyebrow">EXPLORE</div><h2>Shop by category</h2></div><a href="{{ url_for('consumer_home') }}">See all →</a></div>
+  <div class="category-row">
+    <a href="{{ url_for('consumer_home') }}?category=Vegetables" class="category-card cat-green"><span>🥬</span><b>Vegetables</b><small>Fresh & local</small></a>
+    <a href="{{ url_for('consumer_home') }}?category=Fruits" class="category-card cat-orange"><span>🍎</span><b>Fruits</b><small>Seasonal picks</small></a>
+    <a href="{{ url_for('consumer_home') }}?category=Grains" class="category-card cat-gold"><span>🌾</span><b>Grains</b><small>Farm staples</small></a>
+    <a href="{{ url_for('consumer_home') }}?category=Spices" class="category-card cat-red"><span>🌶️</span><b>Spices</b><small>Local flavour</small></a>
+  </div>
+</section>
+
+<section class="section-block">
+  <div class="section-heading"><div><div class="eyebrow">TODAY'S MARKET</div><h2>{% if query %}Results for “{{ query }}”{% elif category!='All' %}{{ category }}{% else %}Fresh picks for you{% endif %}</h2></div><span class="result-count">{{ products|length }} available</span></div>
+  <form method="get" class="shop-search">
+    <div class="search-box"><span>⌕</span><input name="q" value="{{ query }}" placeholder="Search vegetables, fruits, farmer..."></div>
+    <select name="category"><option>All</option>{% for x in ['Vegetables','Fruits','Grains','Spices'] %}<option {% if category==x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select>
+    <button class="button" type="submit">Search</button>
+  </form>
+
+  <div class="product-grid">
+  {% for p in products %}
+    <article class="product-card">
+      <div class="product-visual {% if p['category']=='Fruits' %}visual-fruit{% elif p['category']=='Grains' %}visual-grain{% elif p['category']=='Spices' %}visual-spice{% endif %}">
+        <a class="wishlist-dot" href="{{ url_for('consumer_product', pid=p['id']) }}">{{ '♥' if p['id'] in wishlist_ids else '♡' }}</a>
+        <a href="{{ url_for('consumer_product', pid=p['id']) }}" class="product-emoji">{% if p['category']=='Fruits' %}🍎{% elif p['category']=='Grains' %}🌾{% elif p['category']=='Spices' %}🌶️{% else %}🥬{% endif %}</a>
+        {% if p['quantity'] <= 5 %}<span class="stock-pill">Low stock</span>{% endif %}
+      </div>
+      <div class="product-card-body">
+        <div class="market-category">{{ p['category'] }}</div>
+        <a href="{{ url_for('consumer_product', pid=p['id']) }}"><h3>{{ p['name'] }}</h3></a>
+        <div class="rating-line">★ <b>{% if p['review_count'] is defined %}{{ p['review_count'] }}{% else %}Fresh{% endif %}</b> · {{ p['farmer'] }}</div>
+        <div class="farmer-mini">📍 {{ p['farmer_location'] }} · {{ p['quantity'] }} {{ p['unit'] }}</div>
+        <div class="product-bottom"><strong>₹{{ '%.2f'|format(p['price']) }}</strong><small>/ {{ p['unit'] }}</small></div>
+        <div class="product-actions-grid">
+          <form method="post" action="{{ url_for('add_cart', pid=p['id']) }}"><button type="submit" class="button full">Add to basket</button></form>
+          <form method="post" action="{{ url_for('toggle_wishlist', pid=p['id']) }}"><button type="submit" class="icon-button" title="Wishlist">{{ '♥' if p['id'] in wishlist_ids else '♡' }}</button></form>
+        </div>
+      </div>
+    </article>
+  {% else %}
+    <div class="empty-state"><div>🌱</div><h3>No products found</h3><p>Try another search or category.</p><a href="{{ url_for('consumer_home') }}" class="button">Show all produce</a></div>
+  {% endfor %}
+  </div>
+</section>
+
+<section class="closing-banner"><div><div class="eyebrow">WHY AGRIDIRECT</div><h2>Better choices for farmers.<br>Better produce for families.</h2></div><a href="{{ url_for('wishlist') }}" class="button secondary">View your wishlist</a></section>
+{% endblock %}

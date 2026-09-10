@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Farmer Dashboard · AgriDirect{% endblock %}
+{% block content %}
+<section class="farmer-hero">
+  <div><div class="eyebrow">FARMER WORKSPACE</div><h1>Good morning, {{ current_user['name'].split()[0] }} 👋</h1><p>Here is what is happening with your produce today.</p></div>
+  <div class="dashboard-head-actions"><a class="button secondary" href="{{ url_for('supply_demand') }}">⚖ Market signals</a><a class="button secondary" href="{{ url_for('future_harvest') }}">🌱 Plan harvest</a><a class="button" href="{{ url_for('add_produce') }}">＋ Add produce</a></div>
+</section>
+<div class="stats farmer-stats">
+  <div class="stat-card"><div class="stat-icon green">🌾</div><span>Products listed</span><strong>{{ stats['total_products'] }}</strong><small>Active listings</small></div>
+  <div class="stat-card"><div class="stat-icon blue">📦</div><span>Available stock</span><strong>{{ stats['total_stock'] }}</strong><small>Units in marketplace</small></div>
+  <div class="stat-card"><div class="stat-icon orange">🛒</div><span>Orders received</span><strong>{{ order_stats['total_orders'] }}</strong><small>Orders with your produce</small></div>
+  <div class="stat-card"><div class="stat-icon gold">₹</div><span>Total earnings</span><strong>₹{{ '%.0f'|format(order_stats['total_earnings'] or 0) }}</strong><small>Value of sold produce</small></div>
+</div>
+<section class="dashboard-section">
+  <div class="section-title"><div><div class="eyebrow">YOUR STORE</div><h2>My produce</h2></div><a href="{{ url_for('add_produce') }}">Add another →</a></div>
+  {% if products %}<div class="farmer-product-grid">{% for p in products %}
+  <div class="farmer-product-card">
+    <div class="farmer-product-top"><div class="farm-product-art">{% if p['category']=='Fruits' %}🍎{% elif p['category']=='Grains' %}🌾{% elif p['category']=='Spices' %}🌶️{% else %}🥬{% endif %}</div><div>{% if p['quantity']==0 %}<span class="status status-danger">Sold out</span>{% elif p['quantity']<=5 %}<span class="status status-warning">Low stock</span>{% else %}<span class="status status-good">Available</span>{% endif %}</div></div>
+    <div class="market-category">{{ p['category'] }}</div><h3>{{ p['name'] }}</h3><div class="farmer-price">₹{{ '%.2f'|format(p['price']) }} <small>/ {{ p['unit'] }}</small></div>
+    <div class="farmer-metrics"><span><small>STOCK</small><b>{{ p['quantity'] }} {{ p['unit'] }}</b></span><span><small>HARVESTED</small><b>{{ p['harvested'] }}</b></span></div>
+    {% set a = advice[p['id']] %}<div class="smart-price"><div><span>💡 Smart price</span><b>₹{{ '%.0f'|format(a['low']) }} – ₹{{ '%.0f'|format(a['high']) }}</b></div><small>{{ a['trend'] }} demand · {{ a['supply'] }} stock</small></div>
+    <form method="post" action="{{ url_for('update_stock', pid=p['id']) }}" class="stock-form"><label>Update stock</label><div><input name="quantity" type="number" min="0" value="{{ p['quantity'] }}" required><button type="submit">Save</button></div></form>
+    <div class="product-actions"><a class="button secondary" href="{{ url_for('edit_produce', pid=p['id']) }}">Edit</a><form method="post" action="{{ url_for('delete_produce', pid=p['id']) }}" onsubmit="return confirm('Delete this produce listing?')"><button type="submit" class="danger-button">Delete</button></form></div>
+  </div>{% endfor %}</div>
+  {% else %}<div class="empty-state"><div>🌱</div><h3>Your store is empty</h3><p>Add your first produce listing to start selling.</p><a class="button" href="{{ url_for('add_produce') }}">Add produce</a></div>{% endif %}
+</section>
+<section class="dashboard-section">
+  <div class="section-title"><div><div class="eyebrow">RECENT ACTIVITY</div><h2>Recent orders</h2></div><a href="{{ url_for('farmer_orders') }}">View all →</a></div>
+  {% if recent_orders %}<div class="data-card table-wrap"><table><tr><th>Order</th><th>Product</th><th>Customer</th><th>Qty</th><th>Value</th><th>Status</th></tr>{% for o in recent_orders %}<tr><td>#{{ o['id'] }}</td><td><b>{{ o['product_name'] }}</b></td><td>{{ o['consumer'] }}</td><td>{{ o['quantity'] }}</td><td>₹{{ '%.2f'|format(o['quantity'] * o['price']) }}</td><td><span class="status">{{ o['status'] }}</span></td></tr>{% endfor %}</table></div>{% else %}<div class="empty-state compact"><h3>No orders yet</h3><p>Your first sale will appear here.</p></div>{% endif %}
+</section>
+{% endblock %}

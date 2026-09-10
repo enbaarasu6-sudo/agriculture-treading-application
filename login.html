@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}{{ role.title() }} sign in · AgriDirect{% endblock %}
+{% block content %}
+<section class="auth-layout">
+  <div class="auth-art">
+    <div class="eyebrow">{{ '🌾 FARMER LOGIN' if role=='farmer' else '🛒 CONSUMER LOGIN' }}</div>
+    <h1>{{ 'Sell smarter.' if role=='farmer' else 'Shop fresh.' }}<br><span>{{ 'Grow with confidence.' if role=='farmer' else 'Eat with confidence.' }}</span></h1>
+    <p>{{ 'Manage your produce, orders and market intelligence in one simple farmer workspace.' if role=='farmer' else 'Find fresh produce directly from farmers and enjoy a simple farm-to-home shopping experience.' }}</p>
+    <div class="auth-art-card">{{ '🌾' if role=='farmer' else '🛒' }} <b>{{ 'Farmer workspace' if role=='farmer' else 'Consumer marketplace' }}</b><small>{{ 'List produce, track orders and view demand signals.' if role=='farmer' else 'Browse produce, manage your cart and place orders.' }}</small></div>
+  </div>
+  <div class="auth-card">
+    <div class="auth-role">{{ '🌾' if role=='farmer' else '🛒' }} Signing in as {{ role.title() }}</div>
+    <h2>Welcome back</h2>
+    <p class="muted">Use your {{ role }} email and password.</p>
+    <form method="post" class="clean-form"><label>Email<input name="email" type="email" placeholder="Email" autocomplete="email" required></label><label>Password<input name="password" type="password" placeholder="Password" autocomplete="current-password" required></label><button class="button full">Sign in as {{ role.title() }}</button></form>
+    <div class="login-switch"><span>Not the right account?</span><a href="{{ url_for('login', role='consumer' if role=='farmer' else 'farmer') }}">Switch to {{ 'Consumer' if role=='farmer' else 'Farmer' }}</a></div>
+    <p class="auth-foot">New here? <a href="{{url_for('signup',role=role)}}">Create a {{role}} account</a></p><a class="back-link" href="{{url_for('home')}}">← Choose account type</a>
+  </div>
+</section>
+{% endblock %}
